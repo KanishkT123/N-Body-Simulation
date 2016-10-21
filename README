@@ -1,0 +1,34 @@
+README
+
+You may start with the serial and parallel implementations supplied below. All of them run in O(n^2) time, which is unacceptably inefficient. 
+
+serial.cpp
+  a serial implementation,
+  
+openmp.cpp
+  a shared memory parallel implementation done using OpenMP,
+  
+mpi.cpp
+  a distributed memory parallel implementation done using MPI,
+  
+common.cpp, common.h
+  an implementation of common functionality, such as I/O, numerics and timing,
+  
+Makefile
+  a makefile that compile that should work directly on Stampede,
+  
+autograder.cpp
+  a code to help determine performance and grading,
+  
+job-comet-serial, job-comet-openmp16, job-comet-mpi16
+  sample batch files to launch jobs on Comet. 
+  Use sbatch to submit on Comet. 
+  Use these files to check correctness
+  
+auto-comet-serial, auto-comet-openmp16, auto-comet-mpi16
+  sample batch files to launch autograder jobs on Comet. 
+  Use sbatch to submit on Comet. 
+  Use these files to check performance.
+  
+particles.tgz
+  all above files in one tarball archive.

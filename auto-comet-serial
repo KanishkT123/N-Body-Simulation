@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH -A TG-SEE160002
+#SBATCH -J auto-particle-serial
+#SBATCH -o auto-particle-serial.stdout
+#SBATCH -N 1 -n 1         
+#SBATCH -p compute
+#SBATCH -t 00:10:00
+     
+rm serial_sum.txt
+./serial -n 500 -no -s serial_sum.txt
+./serial -n 1000 -no -s serial_sum.txt
+./serial -n 2000 -no -s serial_sum.txt
+./serial -n 4000 -no -s serial_sum.txt
+./serial -n 8000 -no -s serial_sum.txt
+./autograder -v serial -s serial_sum.txt
+

@@ -1,0 +1,9 @@
+#!/bin/bash
+#SBATCH -A TG-SEE160002
+#SBATCH -J particle-serial
+#SBATCH -o particle-serial.stdout
+#SBATCH -N 1
+#SBATCH -n 1         
+#SBATCH -p compute
+#SBATCH -t 00:10:00     
+./serial -n 1000 -o serial.txt

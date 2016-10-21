@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -A TG-SEE160002
+#SBATCH -J particle-openmp16
+#SBATCH -o particle-openmp16.stdout
+#SBATCH -N 1
+#SBATCH -n 16         
+#SBATCH -p compute
+#SBATCH --export=ALL
+#SBATCH -t 00:10:00     
+export OMP_NUM_THREADS=16
+./openmp -n 1000 -o openmp.txt
