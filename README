@@ -1,7 +1,3 @@
-README
-
-You may start with the serial and parallel implementations supplied below. All of them run in O(n^2) time, which is unacceptably inefficient. 
-
 serial.cpp
   a serial implementation,
   
