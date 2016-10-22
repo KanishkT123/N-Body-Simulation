@@ -22,8 +22,6 @@ typedef struct
   double vy;
   double ax;
   double ay;
-  struct particle_t* below;
-  struct particle_t* adjacent;
 } particle_t;
 
 //

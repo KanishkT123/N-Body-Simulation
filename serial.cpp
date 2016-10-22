@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <math.h>
 #include "common.h"
+#include <vector>
+#include <algorithm>
 
 //
 //  benchmarking program
@@ -39,31 +41,68 @@ int main( int argc, char **argv )
     //  simulate a number of time steps
     //
     double simulation_time = read_timer( );
-	
+	int maxpointers = (get_size())/cutoff +1;
     for( int step = 0; step < NSTEPS; step++ )
     {
 	navg = 0;
         davg = 0.0;
 	dmin = 1.0;
 
-        std::vector <particle_t*> bin;
-        double maxpointers = cutoff/(get_size());
+        std::vector<std::vector <particle_t*> > binx;
+        std::vector<std::vector <particle_t*> > biny;
 
-        
-        
+        binx.resize(maxpointers);
+        biny.resize(maxpointers);
         //
         //  build bins
         //
-        for()
+        for(size_t i = 0; i<n; i++)
+        {
+            particles[i].ax = particles[i].ay = 0;
+            
+            int b = particles[i].x/cutoff;
+            binx[b].push_back(particles+i);
+            
+            int b2 = particles[i].y/cutoff;
+            biny[b2].push_back(particles+i);
+
+        }
+
         //
         //  compute forces
         //
-        for( int i = 0; i < n; i++ )
+        for( int i = 0; i < n; ++i )
         {
+            int mybinx =  particles[i].x/cutoff;
+            int mybiny =  particles[i].y/cutoff;
+            for(int xloc = mybinx-1; xloc <= mybinx+1; ++xloc)
+            {
+                if(xloc > 0 and xloc <= maxpointers)
+                {
+                    for(int yloc = mybiny -1; yloc<= mybiny + 1; ++yloc)
+                    {   
+                        if(y>0 && y<=maxpointers)
+                        {
+                            for(std::vector<particle_t*>::iterator j = binx[xloc].begin(); j!=binx[xloc].end(); ++j)
+                            {   
+                                particle_t curpart = **j;
+                                if(((curpart.x - particles[i].x)*(curpart.x - particles[i].x) + (curpart.y - particles[i].y)*(curpart.y - particles[i].y)) >
+                                    cutoff*cutoff)
+                                {
+                                  continue;  
+                                }
 
-            particles[i].ax = particles[i].ay = 0;
-            for (int j = 0; j < n; j++ )
-				apply_force( particles[i], particles[j],&dmin,&davg,&navg);
+                                std::vector<particle_t*>::iterator currentpos = std::find(biny[yloc].begin(), biny[yloc].end(), *j);
+                                if(currentpos != biny[yloc].end())
+                                {
+                                    apply_force(particles[i], **j, &dmin, &davg, &navg);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
         }
  
         //
@@ -89,6 +128,7 @@ int main( int argc, char **argv )
           if( fsave && (step%SAVEFREQ) == 0 )
               save( fsave, n, particles );
         }
+
     }
     simulation_time = read_timer( ) - simulation_time;
     
