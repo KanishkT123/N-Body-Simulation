@@ -41,15 +41,19 @@ int main( int argc, char **argv )
     //  simulate a number of time steps
     //
     double simulation_time = read_timer( );
-	int maxpointers = (get_size())/cutoff +1;
+	
+    int maxpointers = ceil((get_size())/cutoff);
+
+    std::vector<std::vector <particle_t*> > binx;
+    std::vector<std::vector <particle_t*> > biny;
+
+
     for( int step = 0; step < NSTEPS; step++ )
     {
 	navg = 0;
         davg = 0.0;
 	dmin = 1.0;
 
-        std::vector<std::vector <particle_t*> > binx;
-        std::vector<std::vector <particle_t*> > biny;
 
         binx.resize(maxpointers);
         biny.resize(maxpointers);
@@ -58,12 +62,11 @@ int main( int argc, char **argv )
         //
         for(size_t i = 0; i<n; i++)
         {
-            particles[i].ax = particles[i].ay = 0;
             
-            int b = particles[i].x/cutoff;
+            int b = floor(particles[i].x/cutoff);
             binx[b].push_back(particles+i);
             
-            int b2 = particles[i].y/cutoff;
+            int b2 = floor(particles[i].y/cutoff);
             biny[b2].push_back(particles+i);
 
         }
@@ -72,28 +75,33 @@ int main( int argc, char **argv )
         //  compute forces
         //
         for( int i = 0; i < n; ++i )
-        {
-            int mybinx =  particles[i].x/cutoff;
-            int mybiny =  particles[i].y/cutoff;
+        {   
+            particles[i].ax  = 0;
+            particles[i].ay = 0;
+
+            int mybinx =  floor(particles[i].x/cutoff);
+            int mybiny =  floor(particles[i].y/cutoff);
+
             for(int xloc = mybinx-1; xloc <= mybinx+1; ++xloc)
             {
-                if(xloc > 0 and xloc <= maxpointers)
+                if(xloc >= 0 and xloc <maxpointers)
                 {
                     for(int yloc = mybiny -1; yloc<= mybiny + 1; ++yloc)
                     {   
-                        if(y>0 && y<=maxpointers)
+                        if(yloc>=0 && yloc<maxpointers)
                         {
                             for(std::vector<particle_t*>::iterator j = binx[xloc].begin(); j!=binx[xloc].end(); ++j)
                             {   
-                                particle_t curpart = **j;
-                                if(((curpart.x - particles[i].x)*(curpart.x - particles[i].x) + (curpart.y - particles[i].y)*(curpart.y - particles[i].y)) >
-                                    cutoff*cutoff)
-                                {
-                                  continue;  
-                                }
 
-                                std::vector<particle_t*>::iterator currentpos = std::find(biny[yloc].begin(), biny[yloc].end(), *j);
-                                if(currentpos != biny[yloc].end())
+                                particle_t currentpart = **j;
+                                double dx = currentpart.x - particles[i].x;
+                                double dy = currentpart.y - particles[i].y;
+                                double r2 = dx * dx + dy * dy;
+                                if(r2 > cutoff*cutoff)
+                                {
+                                    continue;
+                                }
+                                if (std::find(biny[yloc].begin(), biny[yloc].end(), *j) != biny[yloc].end())
                                 {
                                     apply_force(particles[i], **j, &dmin, &davg, &navg);
                                 }
@@ -128,6 +136,9 @@ int main( int argc, char **argv )
           if( fsave && (step%SAVEFREQ) == 0 )
               save( fsave, n, particles );
         }
+
+        binx.clear();
+        biny.clear();
 
     }
     simulation_time = read_timer( ) - simulation_time;
